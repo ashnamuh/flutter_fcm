@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() => runApp(MyApp());
 
@@ -57,7 +58,75 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
+}
+
+class MessageHandler extends StatefulWidget {
+  @override
+  _MessageHandlerState createState() => _MessageHandlerState();
+}
+
+class _MessageHandlerState extends State<MessageHandler> {
+  final FirebaseMessaging _fcm = FirebaseMessaging();
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    _fcm.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print('MESSAGE');
+        print(message);
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                content: ListTile(
+                  title: Text('onMessage' + message['notification']['title']),
+                  subtitle: Text(message['notification']['body']),
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    color: Colors.amber,
+                    child: Text('Ok'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+        );
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print('LAUNCH');
+        print(message);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print('RESUME');
+        print(message);
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // _handleMessages(context);
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.deepOrange,
+        title: Text('FCM Push Notifications'),
+      ),
+    );
+  }
+
+  /// Subscribe the user to a topic
+  // _subscribeToTopic() async {
+  //   // Subscribe the user to a topic
+  //   _fcm.subscribeToTopic('puppies');
+  // }
 }
